@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>EUL Campus</title>
+
+</head>
+<style>
+    .menu {
+        position: absolute;
+        top: 20px;
+        right: 30px;
+        z-index: 10;
+        text-align: right;
+        background: transparent;
+        padding: 10px;
+    }
+</style>
+<body>
+<div class="menu"
+style="position: absolute; top: 20px; left: 20px; right: auto; text-align: left;">
+<h1>EUL Campus</h1>
+
+<h3>What are you looking for?</h3>
+
+<button onclick="chooseSearch('classroom')">Find Classroom</button>
+<!--<button onclick="chooseSearch('meeting')">Find Meeting Place</button>
+<button onclick="chooseSearch('advisor')">Find Your Advisor</button>-->
+
+<div id="searchBox" style="display: none;">
+           <input id="roomInput" type="text"
+           placeholder="Enter classroom"
+           onkeydown="if (event.key === 'Enter') {findRoom(); }">
+    <button onclick="findRoom()">Search</button>
+</div>
+
+</div>
+<p id="result" style="position: fixed;
+top: 25px;
+right: 30px;
+width: 320px;
+font-size: 24px;
+text-align: right;
+white-space: normal;
+margin: 0;
+z-index: 20;
+"></p>
+<div style="position: relative; display: inline-block;">
+    <img src="/static/images/new-map.png" style="display: block; width: 100%; height: auto; mix-blend-mode: multiply;">
+    <div id="mapMarker"
+         style="display: none;
+                position: absolute;
+                z-index: 10;
+                left: 72%;
+                top: 44%;
+                background: black;
+                color: white;
+                padding: 6px 10px;
+                border-radius: 20px;">
+        AS
+    </div>
+</div>
+<script>
+    let selectedType = "";
+    function chooseSearch(type) {
+        selectedType = type
+
+        let searchBox = document.getElementById("searchBox");
+        let input = document.getElementById("roomInput");
+
+        searchBox.style.display = "block"
+
+        if (type === "classroom") {
+            input.placeholder = "Enter classroom";
+        } else if (type === "meeting") {
+            input.placeholder = "Enter meeting place";
+        } else if (type === "advisor") {
+            input.placeholder = "Enter advisor";
+        }
+
+        input.value = "";
+    }
+    function findRoom() {
+        let room = document.getElementById("roomInput").value.trim().toUpperCase();
+
+        let result = document.getElementById("result");
+        let marker = document.getElementById("mapMarker");
+
+        let engineering = {};
+
+        for (let i = 1; i <=24; i++) {
+            engineering["ASA-" + String(i).padStart(3, "0")] = 0;
+        }
+        for (let i = 100; i <= 122; i++) {
+            engineering["ASA-" + i] = 1;
+        }
+        for (let i = 201; i <= 219; i++) {
+            engineering["ASA-" + i] =2
+        }
+        let dentistry = {
+            "ECZ-012": 0,
+            "ECZ-013": 0,
+            "ECZ-014": 0,
+            "ECZ-015": 0,
+            "ECZ-016": 0,
+            "ECZ-017": 0,
+            "ECZ-018": 0,
+            "ECZ-019": 0,
+            "ECZ-020": 0,
+            "ECZ-021": 0,
+            "ECZ-022": 0,
+            "ECZ-023": 0,
+            "ECZ-001": 1,
+            "ECZ-002": 1,
+            "ECZ-003": 1,
+            "ECZ-004": 1,
+            "ECZ-005": 1,
+            "ECZ-006": 1,
+            "ECZ-007": 1,
+            "ECZ-008": 1,
+            "ECZ-301": 3,
+            "ECZ-302": 3,
+            "ECZ-303": 3,
+            "ECZ-304": 3,
+            "ECZ-305": 3,
+            "ECZ-306": 3,
+            "ECZ-307": 3,
+            "ECZ-308": 3,
+            "ECZ-309": 3,
+            "ECZ-310": 3,
+            "ECZ-311": 3,
+            "ECZ-312": 3,
+            "ECZ-313": 3,
+            "ECZ-314": 3,
+            "ECZ-315": 3,
+            "ECZ-316": 3,
+            "ECZ-317": 3,
+            "ECZ-318": 3,
+            "ECZ-319": 3,
+            "ECZ-320": 3,
+            "ECZ-321": 3
+        }
+
+        let medicine = {
+            "CL-001": 0,
+            "CL-002": 0,
+            "CL-003": 0,
+            "CL-004": 0,
+            "CL-005": 0,
+            "CL-006": 0,
+            "CL-007": 0,
+            "CL-008": 0,
+            "CL-009": 0,
+            "CL-010": 0,
+            "CL-101": 1,
+            "CL-102": 1,
+            "CL-103": 1,
+            "CL-104": 1,
+            "CL-105": 1,
+            "CL-106": 1,
+            "CL-107": 1,
+            "CL-108": 1,
+            "CL-109": 1,
+            "CL-110": 1,
+            "CL-201": 2,
+            "CL-202": 2,
+            "CL-203": 2,
+            "CL-204": 2,
+            "CL-205": 2,
+            "CL-206": 2,
+            "CL-207": 2,
+            "CL-208": 2,
+            "CL-209": 2,
+            "CL-210": 2,
+            "CL-211": 2,
+            "CL-212": 2
+        }
+
+        let aRooms = {
+            "A1": 0,
+            "A2": 0
+        };
+
+
+        let hukuk = {
+            "HK-001": 0,
+            "HK-002": 0,
+            "HK-003": 0,
+            "HK-006": 0,
+            "HK-007": 0,
+            "HK-004": 1,
+            "HK-005": 1,
+            "HK-008": 1
+        };
+        if(Object.hasOwn(hukuk, room)) {
+            result.innerText = "Floor:" + hukuk[room] + "|\nClassroom: " + room;
+            marker.style.display = "Block";
+            marker.innerText = "HUKUK";
+            marker.style.left = "85%";
+            marker.style.top = "55%";
+            marker.style.fontSize = "13px";
+            marker.style.padding = "6px 10px"
+        } else if (Object.hasOwn(engineering, room)) {
+            result.innerText = "Floor; " + engineering[room] + "\nClassroom: " + room;
+            marker.style.display = "block";
+            marker.innerText = "ENGINEERING";
+            marker.style.fontSize = "12px";
+            marker.style.padding = "3px 6px";
+            marker.style.left = "48%";
+            marker.style.top = "22%"
+        } else if (Object.hasOwn(dentistry, room)) {
+            result.innerText = "Floor: " + dentistry[room] + "\nClassroom: " + room;
+            marker.style.display = "block";
+            marker.innerText = "DENTISTRY";
+            marker.style.fontSize = "11px";
+            marker.style.padding = "3px 6px";
+            marker.style.left = "48%";
+            marker.style.top = "36%";
+        } else if (Object.hasOwn(medicine,room)) {
+            result.innerText = "Floor: " + medicine[room] + "\nClassroom: " + room;
+            marker.style.display = "block";
+            marker.innerText = "MEDICINE";
+            marker.style.fontSize = "11px";
+            marker.style.padding = "3px 6px";
+            marker.style.left = "67%";
+            marker.style.top = "42%";
+
+        } else if (Object.hasOwn(aRooms, room)) {
+            result.innerText = "Floor: 0\nClassroom: " + room;
+            marker.style.display = "block";
+            marker.innerText = "A1 / A2";
+            marker.style.fontSize = "11px";
+            marker.style.padding = "3px 6px"
+            marker.style.left = "57%";
+            marker.style.top = "35%";
+        } else {
+            result.innerText = "Room not found";
+            marker.style.display = "none";
+        }
+    }
+</script>
